@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yaofei.admin.manager.resource.dao.ResourceDao">
+    <resultMap id="baseResultMap" type="com.yaofei.admin.manager.resource.domain.Resource">
+        <id column="id" property="id" jdbcType="VARCHAR"/>
+        <result column="name" property="name"/>
+        <result column="type" property="type"/>
+        <result column="url" property="url"/>
+        <result column="order_index" property="orderIndex"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="code" property="code"/>
+        <result column="order_index" property="orderIndex"/>
+    </resultMap>
+
+    <select id="findAll" parameterType="java.lang.String" resultMap="baseResultMap">
+        SELECT *
+        FROM admin_resource
+        ORDER BY parent_id ASC, order_index ASC;
+    </select>
+</mapper>

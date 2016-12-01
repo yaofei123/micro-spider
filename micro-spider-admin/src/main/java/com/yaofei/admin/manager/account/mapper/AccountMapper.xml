@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yaofei.admin.manager.account.dao.AccountDao">
+    <resultMap id="baseResultMap" type="com.yaofei.admin.manager.account.domain.Account">
+        <id column="id" property="id" jdbcType="VARCHAR"/>
+        <result column="user_name" property="userName"/>
+        <result column="password" property="password"/>
+        <result column="role_codes" property="roleCodes"/>
+        <result column="available" property="available"/>
+    </resultMap>
+
+    <select id="findByLoginName" parameterType="java.lang.String" resultMap="baseResultMap">
+        SELECT *
+        FROM admin_account
+        WHERE user_name = #{currentLoginName} AND available = TRUE ;
+    </select>
+</mapper>

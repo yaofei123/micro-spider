@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yaofei.admin.zhihu.dao.ZhihuDao">
+    <resultMap id="BaseResultMap" type="com.yaofei.admin.zhihu.entity.ZhihuData">
+        <association property="question" resultMap="QuestionResult"/>
+        <collection property="answerList" resultMap="AnswerListResult"/>
+    </resultMap>
+    <resultMap id="QuestionResult" type="com.yaofei.admin.zhihu.entity.Question">
+        <id property="id" column="id"/>
+        <result property="question" column="question"/>
+        <result property="questionDetail" column="question_detail"/>
+    </resultMap>
+    <resultMap id="AnswerListResult" type="com.yaofei.admin.zhihu.entity.Answer">
+        <id property="answerId" column="id"/>
+        <result property="answerer" column="answerer"/>
+        <result property="answerDetail" column="answer_detail"/>
+        <result property="linkedQuestion" column="linked_question"/>
+        <result property="vote" column="vote"/>
+    </resultMap>
+
+    <insert id="insertQuestion" parameterType="com.yaofei.api.zhihu.domain.Question">
+        INSERT INTO zhihu_question (id, question, question_detail)
+        VALUES (#{question.id}, #{question.question}, #{question.questionDetail})
+    </insert>
+
+    <insert id="insertAnswer" parameterType="java.util.List">
+        INSERT INTO zhihu_answer (id, answerer, answer_detail, linked_question, vote) VALUES
+        <foreach collection="answerList" item="answer" index="index" separator=",">
+            (#{answer.answerId},#{answer.answerer},#{answer.answerDetail},#{answer.linkedQuestion},#{answer.vote})
+        </foreach>
+    </insert>
+
+    <select id="listPageZhihuData" resultMap="BaseResultMap">
+        SELECT
+            zq.id id,
+            zq.question question,
+            zq.question_detail question_detail,
+            za.id answerId,
+            za.answer_detail answer_detail,
+            za.answerer answerer,
+            za.linked_question linked_question,
+            za.vote vote
+        FROM zhihu_answer za, zhihu_question zq WHERE linked_question = zq.id
+    </select>
+
+
+</mapper>
