@@ -19,7 +19,7 @@
                     </button>
                     <div class="col-sm-4">
                         <div class="input-group">
-                            <input class="form-control" id="fuzzy-search1" placeholder="等级名查询" type="text">
+                            <input class="form-control" id="fuzzy-search" placeholder="问题查询" type="text">
                             <span class="input-group-btn">
 								<button class="btn btn-sm btn-default" type="button" id="btn-simple-search">
                                     <i class="ace-icon fa fa-search bigger-110"></i>
@@ -41,10 +41,10 @@
                             <div class="col-sm-12">
                                 <div class="col-sm-4">
                                     <label for="name-search">
-                                        租户姓名
+                                        相关词
                                         <small class="text-success"></small>
                                     </label>
-                                    <input type="text" class="form-control" placeholder="租户姓名" id="name-search">
+                                    <input type="text" class="form-control" placeholder="相关词" id="name-search">
                                 </div>
                             </div>
 
@@ -76,7 +76,7 @@
                             <input type="checkbox" name="cb-check-all">
                         </th>
                         <th>问题</th>
-                        <th>问题详情</th>
+                        <th>问题</th>
                         <th>操作</th>
                     </tr>
                     </thead>
@@ -91,6 +91,7 @@
     </div><!-- /.col -->
 </div><!-- /.row -->
 
+<!--查看-->
 <div id="model-view-modal" class="modal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -103,25 +104,51 @@
             <div class="modal-body">
                 <div id="form-view" class="form-horizontal" role="form">
                     <div class="form-group" hidden>
-                        <label class="col-sm-3 control-label prop-name" for="name-view"><span
+                        <label class="col-sm-3 control-label prop-name" for="id-view"><span
                                 class="red">*</span>id:</label>
-                        <label id="name-view" name="name-view" class="col-sm-9 prop-value"></label>
+                        <label id="id-view" name="id-view" class="col-sm-9 prop-value"></label>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-3 control-label prop-name" for="sex-view"><span
+                        <label class="col-sm-3 control-label prop-name" for="question-view"><span
                                 class="red">*</span>问题:</label>
-                        <label id="sex-view" name="sex-view" class="col-sm-9 prop-value"></label>
+                        <label id="question-view" name="question-view" class="col-sm-9 prop-value"></label>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-3 control-label prop-name" for="type-view"><span
-                                class="red">*</span>问题详情:</label>
-                        <label id="type-view" name="type-view" class="col-sm-9 prop-value"></label>
+                        <label class="col-sm-3 control-label prop-name" for="question-detail-view"><span
+                                class="red">*</span>详情:</label>
+                        <label id="question-detail-view" name="question-detail-view"
+                               class="col-sm-9 prop-value"></label>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="span12" id="div-table-container-answer">
+                        <div class="table-header">
+                            回答
+                        </div>
+                        <table class="table table-striped table-bordered table-hover table-condensed"
+                               id="table-model-answer"
+                               cellspacing="0" width="100%">
+                            <thead>
+                            <tr>
+                                <th>
+                                    <input type="checkbox" name="cb-check-all">
+                                </th>
+                                <th>回答者</th>
+                                <th>回答者</th>
+                                <th>点赞</th>
+                            </tr>
+                            </thead>
+                            <tbody id="aBody">
+                            </tbody>
+
+                        </table>
                     </div>
                 </div>
             </div>
 
             <div class="modal-footer">
-                <button class="btn btn-sm btn-cancel" data-dismiss="modal">
+                <button onclick="" class="btn btn-sm btn-cancel" data-dismiss="modal">
                     <i class="ace-icon fa fa-times"></i>
                     关闭
                 </button>
@@ -129,6 +156,7 @@
         </div>
     </div>
 </div>
+<!--新增-->
 <div id="model-add-modal" class="modal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -179,6 +207,7 @@
         </div>
     </div>
 </div>
+<!--编辑-->
 <div id="model-edit-modal" class="modal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -244,14 +273,15 @@
         , "assets/js/date-time/moment.min.js"
         , "assets/js/select2.full.min.js"
         , "assets/js/selectUtil.js"
-        , null]
+        , null];
 
-    var url_list = '/zhihu/list';
-    var url_rest = 'tenant/tenant';
-
+    var url_list = '/zhihu/listQ';
+    var url_list_a = '/zhihu/listA';
+    var url_rest = '/zhihu/listQ';
+    var modelManage = {};
     ace.load_ajax_scripts(scripts, function () {
 
-        var modelManage = {
+        modelManage = {
             currentItem: null,
             simpleSearch: true,
             getQueryCondition: function (data) {
@@ -261,20 +291,20 @@
                 //组装查询参数
 
                 if (modelManage.simpleSearch) {
-                    $("#search-form")[0].reset()
-                    condition.name = $("#fuzzy-search").val();
+                    $("#search-form")[0].reset();
+                    condition.question = $("#fuzzy-search").val();
 
                 } else {
-                    $("#fuzzy-search").val(null)
-                    condition.name = $("#name-search").val();
+                    $("#fuzzy-search").val(null);
+                    condition.questionDetail = $("#name-search").val();
                 }
                 //组装分页参数
                 param.startIndex = data.start;
                 param.limit = data.length;
-                param.page = data.start / data.length;
+                param.page = data.start / data.length+1;
 
                 param.draw = data.draw;
-                param.condition = JSON.stringify(condition)
+                param.searchCondition = condition;
 
                 return param;
             },
@@ -284,10 +314,9 @@
                     //$("#model-view .prop-value").text("");
                     return;
                 }
-
-                $("#name-view").text(item.name);
-                $("#sex-view").text(item.sex);
-                $("#type-view").text(item.type);
+                $("#question-view").text(item.question);
+                $("#question-detail-view").text(item.questionDetail);
+                console.log(item.answer);
             },
             addItemInit: function () {
                 $("#form-add")[0].reset();
@@ -455,25 +484,15 @@
                     CONSTANT.DATA_TABLES.COLUMN.CHECKBOX
                     , {
                         className: "ellipsis",	//文字过长时用省略号显示，CSS实现
-                        data: "name",
-                        "visible": true,
+                        data: "id",
+                        "visible": false,
                         orderable: false,
                         render: CONSTANT.DATA_TABLES.RENDER.ELLIPSIS//会显示省略号的列，需要用title属性实现划过时显示全部文本的效果
                         //,width : "80px"
                         //,render : function(data,type, row, meta) {return '<i class="fa fa-male"></i> '+(data?"启用":"禁用");}
-                    }
-                    , {
+                    }, {
                         className: "ellipsis",	//文字过长时用省略号显示，CSS实现
-                        data: "sex",
-                        "visible": true,
-                        orderable: false,
-                        render: CONSTANT.DATA_TABLES.RENDER.ELLIPSIS//会显示省略号的列，需要用title属性实现划过时显示全部文本的效果
-                        //,width : "80px"
-                        //,render : function(data,type, row, meta) {return '<i class="fa fa-male"></i> '+(data?"启用":"禁用");}
-                    }
-                    , {
-                        className: "ellipsis",	//文字过长时用省略号显示，CSS实现
-                        data: "type",
+                        data: "question",
                         "visible": true,
                         orderable: false,
                         render: CONSTANT.DATA_TABLES.RENDER.ELLIPSIS//会显示省略号的列，需要用title属性实现划过时显示全部文本的效果
@@ -487,9 +506,7 @@
                         orderable: false,
                         width: "200px",
                         render: function (data, type, row, meta) {
-                            return '<button type="button" class="btn btn-xs btn-primary btn-view" data-toggle="modal" data-target="#model-view-modal"><i class="ace-icon fa fa-search-plus"></i>查看</button>'
-                                    + '<button type="button" class="btn btn-xs btn-primary btn-edit" data-toggle="modal" data-target="#model-edit-modal"><i class="ace-icon fa fa-pencil"></i>修改</button>'
-                                    + '<button type="button" class="btn btn-xs btn-danger btn-del"><i class="ace-icon fa fa-times-circle"></i>删除</button>';
+                            return '<button type="button" class="btn btn-xs btn-primary btn-view" data-toggle="modal" data-target="#model-view-modal"><i class="ace-icon fa fa-search-plus"></i>查看</button>';
                         }
                     }
                 ],
@@ -664,8 +681,112 @@
                 modelManage.showItemDetail(modelManage.currentItem);
             });
 
-
         })
 
     });
+
+//    function getA() {
+//        $("#aBody").empty();
+//        var $wrapperA = $('#div-table-container-answer');
+//        var $tableA = $('#table-model-answer');
+//        url_list_a = url_list_a + "/" + modelManage.currentItem.id;
+//        var _tableA = $tableA.dataTable($.extend(true, {}, CONSTANT.DATA_TABLES.DEFAULT_OPTION, {
+//            "dom": 'rt<"space-4"><"row"<"col-xs-6"i><"col-xs-6"p>><"clear">',
+//            "lengthChange": false,//不显示每页xxx项选择框
+//            ajax: function (data, callback, settings) {//ajax配置为function,手动调用异步查询
+//                //手动控制遮罩
+//                $wrapperA.spinModal();
+//
+//                $.ajax({
+//                    type: "POST",
+//                    url: url_list_a,
+//                    cache: false,	//禁用缓存
+//                    dataType: "json",
+//                    beforeSend: function (request) {
+//                        request.setRequestHeader("Content-Type", "application/json");
+//                    },
+//                    success: function (result) {
+//                        //setTimeout仅为测试遮罩效果
+//                        setTimeout(function () {
+//                            //异常判断与处理
+//                            if (result.errorCode) {
+//                                $.dialog.alert("查询失败。错误码：" + result.errorCode);
+//                                return;
+//                            }
+//                            //封装返回数据，这里仅演示了修改属性名
+//                            var returnData = {};
+//                            returnData.draw = data.draw;//这里直接自行返回了draw计数器,应该由后台返回
+//                            returnData.recordsTotal = result.totalElements;
+//                            returnData.recordsFiltered = result.totalElements;//后台不实现过滤功能，每次查询均视作全部结果
+//                            returnData.data = result.content;
+//                            //关闭遮罩
+//                            $wrapperA.spinModal(false);
+//                            console.log(result.content);
+//                            var obj = eval(result.content);
+//                            $(obj).each(function (index) {
+//                                var val = obj[index];
+//                                console.log(val.answerDetail);
+//                            }, 200);
+//                            //调用DataTables提供的callback方法，代表数据已封装完成并传回DataTables进行渲染
+//                            //此时的数据需确保正确无误，异常判断应在执行此回调前自行处理完毕
+//                            callback(returnData);
+//                        }, 200);
+//
+//
+//                    },
+//                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+//                        $.dialog.alert("查询失败");
+//                        $wrapperA.spinModal(false);
+//                    }
+//                });
+//            },
+//            columns: [
+//                CONSTANT.DATA_TABLES.COLUMN.CHECKBOX
+//                , {
+//                    className: "ellipsis",	//文字过长时用省略号显示，CSS实现
+//                    data: "id",
+//                    "visible": false,
+//                    orderable: false,
+//                    render: CONSTANT.DATA_TABLES.RENDER.ELLIPSIS//会显示省略号的列，需要用title属性实现划过时显示全部文本的效果
+//                    //,width : "80px"
+//                    //,render : function(data,type, row, meta) {return '<i class="fa fa-male"></i> '+(data?"启用":"禁用");}
+//                }, {
+//                    className: "ellipsis",	//文字过长时用省略号显示，CSS实现
+//                    data: "answerer",
+//                    "visible": true,
+//                    orderable: false,
+//                    render: CONSTANT.DATA_TABLES.RENDER.ELLIPSIS//会显示省略号的列，需要用title属性实现划过时显示全部文本的效果
+//                    //,width : "80px"
+//                    //,render : function(data,type, row, meta) {return '<i class="fa fa-male"></i> '+(data?"启用":"禁用");}
+//                }, {
+//                    className: "ellipsis",	//文字过长时用省略号显示，CSS实现
+//                    data: "vote",
+//                    "visible": true,
+//                    orderable: false,
+//                    render: CONSTANT.DATA_TABLES.RENDER.ELLIPSIS//会显示省略号的列，需要用title属性实现划过时显示全部文本的效果
+//                    //,width : "80px"
+//                    //,render : function(data,type, row, meta) {return '<i class="fa fa-male"></i> '+(data?"启用":"禁用");}
+//                }
+//            ],
+//            "createdRow": function (row, data, index) {
+//                //行渲染回调,在这里可以对该行dom元素进行任何操作
+//
+//                //给当前行加样式
+//                if (data.role) {
+//                    $(row).addClass("info");
+//                }
+//
+//                //给当前行某列加样式
+//                $('td', row).eq(5).addClass(data.usable ? "text-success" : "text-error");
+//
+//            },
+//            "drawCallback": function (settings) {
+//                //渲染完毕后的回调
+//                //清空全选状态
+//                $(":checkbox[name='cb-check-all']", $wrapperA).prop('checked', false);
+//                //默认选中第一行
+//                $("tbody tr", $tableA).eq(0).click();
+//            }
+//        })).api();//此处需调用api()方法,否则返回的是JQuery对象而不是DataTables的API对象
+//    }
 </script>

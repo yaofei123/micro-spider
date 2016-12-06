@@ -21,4 +21,9 @@ public interface ZhihuDao extends MybatisMapper {
     Integer insertAnswer(@Param("answerList") List<Answer> answerList) throws Exception;
 
     List<ZhihuData> listPageZhihuData(@Param("pagination") Pagination pagination) throws Exception;
+
+    List<Question> listPageZhihuQ(@Param("pagination") Pagination pagination,@Param("question") String question,@Param("questionDetail") String questionDetail) throws Exception;
+
+
+    List<Answer> nolistPageZhihuA(@Param("pagination") Pagination pagination, @Param("linkedQuestion") String linkedQuestion) throws Exception;
 }

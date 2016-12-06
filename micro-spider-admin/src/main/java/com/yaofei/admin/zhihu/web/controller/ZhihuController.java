@@ -1,14 +1,20 @@
 package com.yaofei.admin.zhihu.web.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import com.yaofei.admin.zhihu.service.ZhihuService;
+import com.yaofei.admin.zhihu.vo.Answer;
+import com.yaofei.admin.zhihu.vo.Question;
+import com.yaofei.admin.zhihu.vo.ZhihuResult;
+import com.yaofei.framework.mvc.PageSearchRequest;
+import com.yaofei.framework.mvc.Result;
+import com.yaofei.framework.util.PageContent;
 import com.yaofei.framework.util.Pagination;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,32 +24,45 @@ import java.util.Map;
 @RequestMapping(value = "/zhihu")
 public class ZhihuController {
 
+    static final Integer SUCCESS = 0; // 成功
+
     @Autowired
     ZhihuService zhihuService;
 
-    @RequestMapping(value = "/add", method = RequestMethod.GET)
-    public String add() {
-//        restTemplate.getForEntity("http://MICRO-SPIDER-ZHIHU/add?a=10&b=20", String.class).getBody();
-        return "";
-    }
-
-    @RequestMapping(value = "/zhihu", method = RequestMethod.GET)
-    public String zhihu() {
-//        restTemplate.getForEntity("http://MICRO-SPIDER-ZHIHU/zhihu?rows=10&page=1", HashMap.class).getBody();
-        Map result = new HashMap();
-        return JSONObject.toJSONString(result);
-    }
-
-    @RequestMapping(value = "/list", method = RequestMethod.GET)
-    public String getZhihu() {
-        return "zhihu/zhihu";
-    }
-
-    @RequestMapping(value = "/list", method = RequestMethod.POST)
-    public String listZhihu(String content) {
+    @RequestMapping(value = "/listQ", method = RequestMethod.POST)
+    @ResponseBody
+    public PageContent<Question> listZhihuQ(@RequestBody PageSearchRequest<Question> pageSearchRequest) {
+        PageContent<Question>  pageContent = new PageContent<>();
         Pagination pagination = new Pagination();
-        Map result = zhihuService.zhihu(pagination);
-        return JSONObject.toJSONString(result);
+        pagination.setPage(pageSearchRequest.getPage());
+        pagination.setRows(pageSearchRequest.getLimit());
+        Map resultMap = zhihuService.zhihuQ(pagination,pageSearchRequest.getSearchCondition() ==null ? new Question():pageSearchRequest.getSearchCondition());
+        Result<ZhihuResult<List<Question>>> result = JSONObject.parseObject(JSONObject.toJSONString(resultMap), new TypeReference<Result<ZhihuResult<List<Question>>>>() {
+        });
+        if (SUCCESS.equals(result.getStatus())) {
+            ZhihuResult<List<Question>> zhihuResult = result.getData();
+            pagination = zhihuResult.getPagination();
+            pageContent.setTotal(pagination.getTotal());
+            pageContent.setContent(zhihuResult.getResultData());
+        }
+        return pageContent;
+    }
+
+    @RequestMapping(value = "/listA/{linkQ}", method = RequestMethod.POST)
+    @ResponseBody
+    public PageContent<Answer> listZhihuA(String content, @PathVariable("linkQ") String linkQ) {
+        PageContent<Answer>  pageContent = new PageContent<>();
+        Pagination pagination = new Pagination();
+        Map resultMap = zhihuService.zhihuA(pagination,linkQ);
+        Result<ZhihuResult<List<Answer>>> result = JSONObject.parseObject(JSONObject.toJSONString(resultMap), new TypeReference<Result<ZhihuResult<List<Answer>>>>() {
+        });
+        if (SUCCESS.equals(result.getStatus())) {
+            ZhihuResult<List<Answer>> zhihuResult = result.getData();
+            pagination = zhihuResult.getPagination();
+            pageContent.setTotal(pagination.getTotal());
+            pageContent.setContent(zhihuResult.getResultData());
+        }
+        return pageContent;
     }
 
 

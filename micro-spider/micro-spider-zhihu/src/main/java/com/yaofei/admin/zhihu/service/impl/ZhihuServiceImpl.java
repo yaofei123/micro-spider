@@ -34,4 +34,14 @@ public class ZhihuServiceImpl implements ZhihuService {
     public List<ZhihuData> selectZhihuData(Pagination pagination) throws Exception{
         return zhihuDao.listPageZhihuData(pagination);
     }
+
+    @Override
+    public List<Question> selectZhihuQ(Pagination pagination,String question,String questionDetail) throws Exception {
+        return zhihuDao.listPageZhihuQ(pagination,question,questionDetail);
+    }
+
+    @Override
+    public List<Answer> selectZhihuA(Pagination pagination,String linkedQuestion) throws Exception {
+        return zhihuDao.nolistPageZhihuA(pagination,linkedQuestion);
+    }
 }

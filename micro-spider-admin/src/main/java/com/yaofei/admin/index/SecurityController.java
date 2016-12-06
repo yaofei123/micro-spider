@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -52,10 +51,10 @@ public class SecurityController {
 //    }
 
 
-    @RequestMapping(value = "/{page}.html")
-    public String page(@PathVariable("page") String page) {
-        return page;
-    }
+//    @RequestMapping(value = "/{page}")
+//    public String page(@PathVariable("page") String page) {
+//        return page;
+//    }
 
 //    @RequestMapping(value = "/login", method = RequestMethod.GET)
 //    public String loginForm(Model model) {
@@ -101,10 +100,10 @@ public class SecurityController {
         //验证是否登录成功
         if (currentUser.isAuthenticated()) {
             LOGGER.info("用户[" + userName + "]登录认证通过(这里可以进行一些认证通过后的一些系统参数初始化操作)");
-            return "/index.html";
+            return "redirect:index.html";
         } else {
             token.clear();
-            return "redirect:/login.html";
+            return "redirect:login.html";
         }
     }
 
@@ -113,12 +112,6 @@ public class SecurityController {
         //使用权限管理工具进行用户的退出，跳出登录，给出提示信息
         SecurityUtils.getSubject().logout();
         redirectAttributes.addFlashAttribute("message", "您已安全退出");
-        return "redirect:/login.html";
-    }
-
-    @RequestMapping("/pages/403")
-    public String unauthorizedRole() {
-        LOGGER.info("------没有权限-------");
-        return "pages/403.html";
+        return "redirect:login.html";
     }
 }

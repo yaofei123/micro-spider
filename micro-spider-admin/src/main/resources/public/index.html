@@ -31,6 +31,7 @@
 
     <!-- ace settings handler -->
     <script src="assets/js/ace-extra.min.js"></script>
+    <script src="assets/js/ace/ace.ajax-content.js"></script>
 
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -66,7 +67,7 @@
         <!-- /section:basics/sidebar.mobile.toggle -->
         <div class="navbar-header pull-left">
             <!-- #section:basics/navbar.layout.brand -->
-            <a href="#" class="navbar-brand">
+            <a href="/index.html" class="navbar-brand">
                 <small>
                     <i class="fa fa-leaf"></i>
                     会员管理服务
@@ -359,7 +360,7 @@
                         <li class="divider"></li>
 
                         <li>
-                            <a href="#">
+                            <a href="/logout">
                                 <i class="ace-icon fa fa-power-off"></i>
                                 Logout
                             </a>
@@ -609,13 +610,12 @@
 
                     //for Ace HTML demo version, convert index.html#page/gallery to > gallery.html and load it
                     if (path.match(/index\.html/)) return path.replace(/index\.html/, url.replace(/^page\//, '') + '.html');
-                    alert(url);
                     //for Ace PHP demo version convert "page/dashboard" to "?page=dashboard" and load it
                     return path + "?" + url.replace(/\//, "=");
                 },
-                default_url: 'page/welcome'//default url
-            }
-            ace.enable_ajax_content($, options)
+                default_url: 'page/dashboard'//default url
+            };
+            ace.enable_ajax_content($, options);
         }
     });
     //    jQuery(document)

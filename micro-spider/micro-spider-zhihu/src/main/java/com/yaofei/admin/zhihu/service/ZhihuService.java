@@ -18,4 +18,10 @@ public interface ZhihuService {
     Integer insertAnswer(List<Answer> answerList) throws Exception;
 
     List<ZhihuData> selectZhihuData(Pagination pagination) throws Exception;
+
+    List<Question> selectZhihuQ(Pagination pagination,String question,String questionDetail) throws Exception;
+
+    List<Answer> selectZhihuA(Pagination pagination,String linkedQuestion) throws Exception;
+
+
 }

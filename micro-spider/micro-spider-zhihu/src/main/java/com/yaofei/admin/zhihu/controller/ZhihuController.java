@@ -1,7 +1,10 @@
 package com.yaofei.admin.zhihu.controller;
 
+import com.yaofei.admin.zhihu.entity.Answer;
+import com.yaofei.admin.zhihu.entity.Question;
 import com.yaofei.admin.zhihu.entity.ZhihuData;
 import com.yaofei.admin.zhihu.service.ZhihuService;
+import com.yaofei.admin.zhihu.vo.ZhihuResult;
 import com.yaofei.framework.mvc.CoreBaseResult;
 import com.yaofei.framework.util.Pagination;
 import org.apache.catalina.servlet4preview.http.HttpServletRequest;
@@ -51,9 +54,53 @@ public class ZhihuController extends CoreBaseResult {
         pagination.setRows(rows);
         try {
             List<ZhihuData> zhihuDataList = zhihuService.selectZhihuData(pagination);
-            return success(zhihuDataList);
+            ZhihuResult zhihuResult = new ZhihuResult<List<ZhihuData>>();
+            zhihuResult.setPagination(pagination);
+            zhihuResult.setResultData(zhihuDataList);
+            return success(zhihuResult);
         } catch (Exception e) {
-            LOGGER.error("",e);
+            LOGGER.error("", e);
+            return error(e);
+        }
+    }
+
+    @RequestMapping(value = "/zhihuQ", method = RequestMethod.GET)
+    public Map<String, Object> getZhihuQ(HttpServletRequest request,
+                                         @QueryParam("rows") @DefaultValue("20") Integer rows,
+                                         @QueryParam("page") @DefaultValue("1") Integer page,
+                                         @QueryParam("question") @DefaultValue("") String question,
+                                         @QueryParam("questionDetail") @DefaultValue("") String questionDetail) {
+        Pagination pagination = new Pagination();
+        pagination.setPage(page);
+        pagination.setRows(rows);
+        try {
+            List<Question> zhihuQList = zhihuService.selectZhihuQ(pagination,question,questionDetail);
+            ZhihuResult zhihuResult = new ZhihuResult<List<Question>>();
+            zhihuResult.setPagination(pagination);
+            zhihuResult.setResultData(zhihuQList);
+            return success(zhihuResult);
+        } catch (Exception e) {
+            LOGGER.error("", e);
+            return error(e);
+        }
+    }
+
+    @RequestMapping(value = "/zhihuA", method = RequestMethod.GET)
+    public Map<String, Object> getZhihuA(HttpServletRequest request,
+                                         @QueryParam("rows") @DefaultValue("20") Integer rows,
+                                         @QueryParam("page") @DefaultValue("1") Integer page,
+                                         @QueryParam("linkedQ") String linkedQ) {
+        Pagination pagination = new Pagination();
+        pagination.setPage(1);
+        pagination.setRows(100);
+        try {
+            List<Answer> zhihuQList = zhihuService.selectZhihuA(pagination, linkedQ);
+            ZhihuResult zhihuResult = new ZhihuResult<List<Question>>();
+            zhihuResult.setPagination(pagination);
+            zhihuResult.setResultData(zhihuQList);
+            return success(zhihuResult);
+        } catch (Exception e) {
+            LOGGER.error("", e);
             return error(e);
         }
     }
